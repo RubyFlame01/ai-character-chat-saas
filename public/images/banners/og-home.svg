@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <radialGradient id="a" cx="68%" cy="26%" r="66%"><stop stop-color="#d94f7b" stop-opacity=".78"/><stop offset=".55" stop-color="#151229"/><stop offset="1" stop-color="#030306"/></radialGradient>
+    <linearGradient id="b" x1="0" x2="1"><stop stop-color="#fff" stop-opacity=".18"/><stop offset="1" stop-color="#fff" stop-opacity=".02"/></linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#a)"/>
+  <path d="M0 620 C280 480 456 720 732 570 C1020 414 1240 510 1600 380 L1600 900 L0 900 Z" fill="#040407" opacity=".66"/>
+  <rect x="92" y="104" width="720" height="248" rx="48" fill="url(#b)" stroke="#fff" stroke-opacity=".12"/>
+  <text x="146" y="222" fill="#fff" font-family="Inter, Arial" font-size="78" font-weight="850">LustTalk AI</text>
+  <text x="150" y="294" fill="#f6c6d8" font-family="Inter, Arial" font-size="34" font-weight="650">18+ AI sex chat and fantasy roleplay</text>
+</svg>

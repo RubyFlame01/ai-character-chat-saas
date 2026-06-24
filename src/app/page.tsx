@@ -1,65 +1,78 @@
 import Image from "next/image";
+import { ArrowRight, Flame, Lock, Sparkles, Zap } from "lucide-react";
+import { CharacterGridInteractive } from "@/components/characters/character-grid-interactive";
+import { LinkButton } from "@/components/ui/button";
+import { localizeCharacters } from "@/lib/characters/localize";
+import { getFeaturedCharacters } from "@/lib/data";
+import { getDictionary, getLocale } from "@/lib/i18n";
 
-export default function Home() {
+export default async function Home() {
+  const locale = await getLocale();
+  const featured = localizeCharacters(getFeaturedCharacters().slice(0, 8), locale);
+  const dictionary = getDictionary(locale);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="cinematic-bg min-h-screen">
+      {/* Hero */}
+      <section className="relative overflow-hidden px-8 py-20">
+        {/* Subtle background image */}
+        <div className="pointer-events-none absolute inset-0 opacity-20">
+          <Image src="/images/banners/lusttalk-hero.png" alt="" fill className="object-cover object-top" priority />
+          <div className="absolute inset-0 bg-gradient-to-b from-[var(--background)]/30 via-transparent to-[var(--background)]" />
+        </div>
+
+        <div className="relative max-w-3xl">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-300/20 bg-violet-400/10 px-3 py-1.5 text-sm font-semibold text-violet-200">
+            <Flame size={14} />
+            {dictionary.home.eyebrow}
+          </div>
+          <h1 className="text-5xl font-black leading-[1.05] text-white sm:text-6xl lg:text-7xl">
+            <span className="brand-gradient-text">{dictionary.home.title}</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-zinc-400">
+            {dictionary.home.description}
           </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <LinkButton href="/characters" className="gap-2">
+              {dictionary.home.browse} <ArrowRight size={17} />
+            </LinkButton>
+            <LinkButton href="/pricing" variant="secondary">
+              {dictionary.home.pricing}
+            </LinkButton>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Feature pills */}
+        <div className="relative mt-12 flex flex-wrap gap-3">
+          {[
+            [Sparkles, dictionary.home.stats[0]],
+            [Zap, dictionary.home.stats[1]],
+            [Lock, dictionary.home.stats[2]],
+          ].map(([Icon, label]) => (
+            <div
+              key={label as string}
+              className="flex items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-zinc-300"
+            >
+              <Icon size={15} className="text-violet-400" />
+              {label as string}
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
+
+      {/* Featured characters */}
+      <section className="px-8 pb-16">
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-widest text-violet-400">{dictionary.home.featuredEyebrow}</p>
+            <h2 className="mt-1.5 text-2xl font-black text-white">{dictionary.home.featuredTitle}</h2>
+          </div>
+          <LinkButton href="/characters" variant="secondary" className="hidden sm:inline-flex text-xs py-2">
+            {dictionary.home.allCharacters} →
+          </LinkButton>
+        </div>
+        <CharacterGridInteractive characters={featured} />
+      </section>
     </div>
   );
 }

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1365" viewBox="0 0 1024 1365" role="img" aria-label="Kana Frost">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="28%" r="72%">
+      <stop offset="0" stop-color="#b388ff" stop-opacity=".9"/>
+      <stop offset=".45" stop-color="#15103a" stop-opacity=".95"/>
+      <stop offset="1" stop-color="#030306"/>
+    </radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".02"/>
+    </linearGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="24"/></filter>
+  </defs>
+  <rect width="1024" height="1365" fill="url(#glow)"/>
+  <circle cx="292" cy="204" r="156" fill="#b388ff" opacity=".18" filter="url(#soft)"/>
+  <circle cx="676" cy="330" r="180" fill="#fff" opacity=".06" filter="url(#soft)"/>
+  <path d="M0 930 C210 820 350 1050 530 936 C710 822 820 790 1024 860 L1024 1365 L0 1365 Z" fill="#020205" opacity=".58"/>
+  <ellipse cx="512" cy="506" rx="194" ry="232" fill="#11111c" opacity=".8"/>
+  <path d="M330 548 C348 332 474 244 594 300 C726 362 734 510 690 650 C650 764 388 770 330 548 Z" fill="#b388ff"/>
+  <ellipse cx="512" cy="510" rx="138" ry="168" fill="#eee2ff"/>
+  <path d="M374 474 C410 356 492 300 594 318 C548 392 478 418 374 474 Z" fill="#15111a" opacity=".85"/>
+  <circle cx="463" cy="512" r="11" fill="#101018"/>
+  <circle cx="561" cy="512" r="11" fill="#101018"/>
+  <path d="M458 605 C492 628 535 628 570 605" fill="none" stroke="#8e3f4f" stroke-width="8" stroke-linecap="round"/>
+  <path d="M346 736 C402 674 621 674 678 736 C744 808 774 956 818 1168 L206 1168 C250 956 280 808 346 736 Z" fill="url(#glass)" stroke="#fff" stroke-opacity=".18" stroke-width="2"/>
+  <path d="M352 790 C438 852 585 852 672 790 L720 1168 L304 1168 Z" fill="#b388ff" opacity=".62"/>
+  <rect x="82" y="1038" width="860" height="210" rx="42" fill="#020205" opacity=".58"/>
+  <text x="126" y="1128" fill="#fff" font-family="Inter, Arial, sans-serif" font-size="58" font-weight="800" letter-spacing="0">Kana Frost</text>
+  <text x="126" y="1192" fill="#ffffff" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="0">ANIME · CINEMATIC</text>
+</svg>
