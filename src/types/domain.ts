@@ -68,6 +68,8 @@ export type PricingPlan = {
   id: SubscriptionTier;
   name: string;
   price: string;
+  originalPrice?: string;
+  discountLabel?: string;
   credits: number;
   tierLabel: string;
   description: string;

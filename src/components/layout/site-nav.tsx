@@ -45,7 +45,7 @@ export async function SiteNav() {
               {user.credits.toLocaleString()} {dictionary.nav.credits}
             </LinkButton>
           ) : (
-            <LinkButton href="/login" variant="secondary" className="hidden sm:inline-flex">{dictionary.nav.login}</LinkButton>
+            <LinkButton href="/?auth=login" variant="secondary" className="hidden sm:inline-flex">{dictionary.nav.login}</LinkButton>
           )}
           <LinkButton href="/characters">{dictionary.nav.startChat}</LinkButton>
         </div>

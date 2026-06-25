@@ -91,7 +91,7 @@ export function PricingCards({
             <div
               key={plan.id}
               className={cn(
-                "relative flex flex-col overflow-hidden rounded-2xl border transition-all",
+                "relative flex flex-col rounded-2xl border transition-all",
                 isHighlighted
                   ? "border-violet-500/50 bg-gradient-to-b from-violet-900/30 to-[var(--card-bg)] shadow-[0_0_40px_rgba(124,58,237,.2)]"
                   : "border-white/[0.08] bg-[var(--card-bg)]",
@@ -142,10 +142,22 @@ export function PricingCards({
                         <p className="mt-1 text-xs text-zinc-500">Billed ${yearlyTotal}/year</p>
                       </>
                     ) : (
-                      <div className="flex items-end gap-2">
-                        <span className="text-4xl font-black text-white">{plan.price}</span>
-                        <span className="pb-1 text-sm text-zinc-400">/mo</span>
-                      </div>
+                      <>
+                        {plan.originalPrice && (
+                          <div className="mb-1 flex items-center gap-2">
+                            <span className="text-sm text-zinc-500 line-through">{plan.originalPrice}/mo</span>
+                            {plan.discountLabel && (
+                              <span className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[10px] font-black text-white">
+                                {plan.discountLabel}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        <div className="flex items-end gap-2">
+                          <span className="text-4xl font-black text-white">{plan.price}</span>
+                          <span className="pb-1 text-sm text-zinc-400">/mo</span>
+                        </div>
+                      </>
                     )}
                   </div>
                 )}

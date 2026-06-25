@@ -24,7 +24,25 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "discord" | null>(null);
   const [showPw, setShowPw] = useState(false);
+
+  async function signInWithOAuth(provider: "google" | "discord") {
+    if (!hasSupabaseBrowserEnv()) {
+      router.push("/dashboard");
+      return;
+    }
+    setOauthLoading(provider);
+    const next = searchParams.get("next") ?? "/dashboard";
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+      },
+    });
+    setOauthLoading(null);
+  }
 
   async function continueAfterAuth() {
     const planId = searchParams.get("plan");
@@ -121,6 +139,50 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               </p>
             </div>
 
+            {/* OAuth buttons */}
+            <div className="mb-4 space-y-2.5">
+              <button
+                type="button"
+                onClick={() => signInWithOAuth("google")}
+                disabled={oauthLoading !== null}
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-white/[0.12] bg-white/[0.06] text-sm font-bold text-white transition hover:bg-white/[0.1] disabled:opacity-50"
+              >
+                {oauthLoading === "google" ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 48 48" fill="none">
+                    <path d="M47.5 24.5c0-1.6-.1-3.2-.4-4.7H24v8.9h13.2c-.6 3-2.4 5.6-5 7.3v6h8.1c4.8-4.4 7.2-10.9 7.2-17.5z" fill="#4285F4"/>
+                    <path d="M24 48c6.5 0 12-2.1 15.9-5.8l-8.1-6c-2.2 1.5-5 2.3-7.8 2.3-6 0-11-4-12.8-9.4H2.9v6.2C6.8 42.7 14.9 48 24 48z" fill="#34A853"/>
+                    <path d="M11.2 29.1c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6V13.7H2.9C1 17.2 0 20.9 0 24.5s1 7.3 2.9 10.8l8.3-6.2z" fill="#FBBC05"/>
+                    <path d="M24 9.5c3.4 0 6.4 1.2 8.8 3.4l6.5-6.5C35.9 2.6 30.4.5 24 .5 14.9.5 6.8 5.8 2.9 13.7l8.3 6.2C13 14.5 18 9.5 24 9.5z" fill="#EA4335"/>
+                  </svg>
+                )}
+                Continue with Google
+              </button>
+              <button
+                type="button"
+                onClick={() => signInWithOAuth("discord")}
+                disabled={oauthLoading !== null}
+                className="flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-white/[0.12] bg-white/[0.06] text-sm font-bold text-white transition hover:bg-white/[0.1] disabled:opacity-50"
+              >
+                {oauthLoading === "discord" ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <svg width="20" height="15" viewBox="0 0 20 15" fill="none">
+                    <path d="M16.93 1.25A16.5 16.5 0 0 0 12.86.02a.06.06 0 0 0-.07.03c-.18.32-.38.73-.52 1.05a15.24 15.24 0 0 0-4.54 0A10.7 10.7 0 0 0 7.2.05a.06.06 0 0 0-.07-.03 16.46 16.46 0 0 0-4.07 1.23.06.06 0 0 0-.03.02C.45 5.37-.27 9.38.08 13.33c0 .02.01.04.03.05a16.6 16.6 0 0 0 4.98 2.5.06.06 0 0 0 .07-.02c.38-.52.72-1.07 1.01-1.65a.06.06 0 0 0-.03-.08 10.93 10.93 0 0 1-1.56-.74.06.06 0 0 1-.01-.1c.1-.08.21-.16.31-.24a.06.06 0 0 1 .06-.01c3.28 1.49 6.82 1.49 10.06 0a.06.06 0 0 1 .06.01c.1.08.2.16.31.24a.06.06 0 0 1-.01.1c-.5.29-1.02.54-1.56.74a.06.06 0 0 0-.03.08c.3.58.64 1.13 1.01 1.65.02.02.04.03.07.02a16.56 16.56 0 0 0 5-2.5.06.06 0 0 0 .02-.05c.42-4.32-.7-8.3-2.97-11.71a.05.05 0 0 0-.03-.04zM6.68 10.9c-.98 0-1.79-.9-1.79-2s.79-2 1.79-2c1.01 0 1.81.9 1.79 2 0 1.1-.79 2-1.79 2zm6.61 0c-.98 0-1.79-.9-1.79-2s.79-2 1.79-2c1.01 0 1.81.9 1.79 2 0 1.1-.78 2-1.79 2z" fill="#5865F2"/>
+                  </svg>
+                )}
+                Continue with Discord
+              </button>
+            </div>
+
+            {/* Divider */}
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex-1 border-t border-white/[0.08]" />
+              <span className="text-xs text-zinc-600">or use email</span>
+              <div className="flex-1 border-t border-white/[0.08]" />
+            </div>
+
             {/* Form */}
             <form onSubmit={submit} className="space-y-3">
               <div className="relative">
@@ -176,9 +238,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             {/* Switch mode */}
             <p className="mt-4 text-center text-xs text-zinc-500">
               {mode === "signup" ? (
-                <>Already have an account? <Link href="/login" className="font-bold text-violet-300 hover:text-white">Sign In</Link></>
+                <>Already have an account? <Link href="/?auth=login" className="font-bold text-violet-300 hover:text-white">Sign In</Link></>
               ) : (
-                <>New here? <Link href="/signup" className="font-bold text-violet-300 hover:text-white">Create an account</Link></>
+                <>New here? <Link href="/?auth=signup" className="font-bold text-violet-300 hover:text-white">Create an account</Link></>
               )}
             </p>
 
