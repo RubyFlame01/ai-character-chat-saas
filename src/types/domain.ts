@@ -78,4 +78,5 @@ export type PricingPlan = {
   memory: string;
   badge?: string;
   highlighted?: boolean;
+  paddlePriceId?: string;
 };

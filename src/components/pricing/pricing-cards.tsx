@@ -1,25 +1,48 @@
 "use client";
 
 import { AlertCircle, Check, Crown, Sparkles, Zap } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { pricingPlans } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
+import { usePaddleCheckout } from "@/components/payments/paddle-checkout";
 
 export function PricingCards({
   labels,
   locale,
+  userId,
+  userEmail,
 }: {
   labels: { buyCredits: string; oneTime: string };
   locale: string;
+  userId?: string;
+  userEmail?: string;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState("");
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [billing, setBilling] = useState<"monthly" | "yearly">("yearly");
+  const { openCheckout } = usePaddleCheckout();
 
-  async function checkout(planId: string) {
+  async function checkout(planId: string, paddlePriceId?: string) {
     setError("");
+
+    // Not logged in → show auth modal
+    if (!userId) {
+      router.push(`/?auth=signup&next=/pricing&plan=${planId}`);
+      return;
+    }
+
+    // Paddle overlay checkout
+    if (paddlePriceId && process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN) {
+      setLoadingPlan(planId);
+      await openCheckout({ priceId: paddlePriceId, userId, userEmail });
+      setLoadingPlan(null);
+      return;
+    }
+
+    // Fallback: server-side checkout (mock / ccbill)
     setLoadingPlan(planId);
     const response = await fetch("/api/payments/checkout", {
       method: "POST",
@@ -28,16 +51,14 @@ export function PricingCards({
     });
     const data = (await response.json()) as { checkoutUrl?: string; error?: string };
     setLoadingPlan(null);
-    if (response.status === 401) {
-      router.push(`/signup?next=/pricing&plan=${planId}`);
-      return;
-    }
     if (!response.ok) {
       setError(data.error ?? "Checkout could not be started. Please try again.");
       return;
     }
     if (data.checkoutUrl) router.push(data.checkoutUrl);
   }
+
+  void searchParams;
 
   const yearlyDiscount = 0.23; // approx 77% off if monthly is 4x
 
@@ -171,7 +192,7 @@ export function PricingCards({
                 <button
                   type="button"
                   disabled={loadingPlan === plan.id}
-                  onClick={() => checkout(plan.id)}
+                  onClick={() => checkout(plan.id, plan.paddlePriceId)}
                   className={cn(
                     "mb-6 w-full rounded-xl py-3 text-sm font-bold transition",
                     isHighlighted

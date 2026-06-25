@@ -41,6 +41,10 @@ export const env = {
   ccbillSalt: process.env.CCBILL_SALT,
   ccbillCurrencyCode: process.env.CCBILL_CURRENCY_CODE ?? "840",
   ccbillWebhookSecret: process.env.CCBILL_WEBHOOK_SECRET,
+  paddleApiKey: process.env.PADDLE_API_KEY,
+  paddleClientToken: process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN,
+  paddleWebhookSecret: process.env.PADDLE_WEBHOOK_SECRET,
+  paddleEnvironment: (process.env.PADDLE_ENVIRONMENT ?? "production") as "sandbox" | "production",
   // Local ComfyUI for portrait generation (character builder). Point at a hosted GPU later.
   comfyuiUrl: (process.env.COMFYUI_URL ?? "http://127.0.0.1:8000").replace(/\/$/, ""),
   imageCreditCost: Number(process.env.IMAGE_CREDIT_COST ?? 10),
@@ -68,6 +72,10 @@ export function hasVeniceEnv() {
 
 export function hasCcbillEnv() {
   return Boolean(env.ccbillAccount && env.ccbillSubaccount && env.ccbillFlexFormId && env.ccbillSalt);
+}
+
+export function hasPaddleEnv() {
+  return Boolean(env.paddleApiKey && env.paddleClientToken);
 }
 
 export function hasSupabaseBrowserEnv() {

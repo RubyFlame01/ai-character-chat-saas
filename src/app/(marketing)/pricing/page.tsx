@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PricingCards } from "@/components/pricing/pricing-cards";
 import { getDictionary, getLocale } from "@/lib/i18n";
+import { getCurrentUser } from "@/lib/server/auth";
 
 export const metadata: Metadata = {
   title: "Membership Plans",
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 export default async function PricingPage() {
   const locale = await getLocale();
   const dictionary = getDictionary(locale);
+  const user = await getCurrentUser();
 
   return (
     <div className="cinematic-bg min-h-screen">
@@ -23,7 +25,12 @@ export default async function PricingPage() {
           </p>
         </div>
         <div className="mt-10">
-          <PricingCards labels={dictionary.pricing} locale={locale} />
+          <PricingCards
+            labels={dictionary.pricing}
+            locale={locale}
+            userId={user?.id ?? undefined}
+            userEmail={user?.email ?? undefined}
+          />
         </div>
       </section>
     </div>
