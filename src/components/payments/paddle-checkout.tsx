@@ -1,34 +1,35 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Paddle } from "@paddle/paddle-js";
 
-declare global {
-  interface Window {
-    Paddle?: Paddle;
-  }
+let globalPaddle: Paddle | null = null;
+let initPromise: Promise<Paddle | null> | null = null;
+
+function getPaddle(): Promise<Paddle | null> {
+  if (globalPaddle) return Promise.resolve(globalPaddle);
+  if (initPromise) return initPromise;
+
+  const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
+  if (!clientToken) return Promise.resolve(null);
+
+  initPromise = import("@paddle/paddle-js").then(({ initializePaddle }) =>
+    initializePaddle({
+      token: clientToken,
+      environment: (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT ?? "production") as "sandbox" | "production",
+    }).then((paddle) => {
+      globalPaddle = paddle ?? null;
+      return globalPaddle;
+    })
+  );
+
+  return initPromise;
 }
 
-let paddleInitialized = false;
-
 export function usePaddleCheckout() {
-  const paddleRef = useRef<Paddle | null>(null);
-
   useEffect(() => {
-    const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN;
-    if (!clientToken || paddleInitialized) return;
-
-    import("@paddle/paddle-js").then(({ initializePaddle }) => {
-      initializePaddle({
-        token: clientToken,
-        environment: (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT ?? "production") as "sandbox" | "production",
-      }).then((paddle) => {
-        if (paddle) {
-          paddleRef.current = paddle;
-          paddleInitialized = true;
-        }
-      });
-    });
+    // Eagerly initialize on mount so it's ready when user clicks
+    getPaddle();
   }, []);
 
   async function openCheckout({
@@ -40,8 +41,11 @@ export function usePaddleCheckout() {
     userId: string;
     userEmail?: string;
   }) {
-    const paddle = paddleRef.current;
-    if (!paddle) return;
+    const paddle = await getPaddle();
+    if (!paddle) {
+      console.error("Paddle not initialized");
+      return;
+    }
 
     paddle.Checkout.open({
       items: [{ priceId, quantity: 1 }],
