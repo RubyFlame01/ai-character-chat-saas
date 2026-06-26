@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { AgeGate } from "@/components/layout/age-gate";
 import { LayoutShell } from "@/components/layout/layout-shell";
 import { AuthModalShell } from "@/components/auth/auth-modal-shell";
+import { PostHogProvider } from "@/components/analytics/posthog-provider";
+import { OnlinePresence } from "@/components/analytics/online-presence";
 import { AGE_GATE_COOKIE } from "@/lib/age-gate";
 import { getCurrentUser } from "@/lib/server/auth";
 import { siteConfig } from "@/lib/config";
@@ -69,6 +72,9 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-[var(--background)] text-zinc-50">
+        <PostHogProvider />
+        <Analytics />
+        <OnlinePresence />
         {!ageVerified && <AgeGate {...dictionary.ageGate} />}
         <AuthModalShell />
         <LayoutShell user={sidebarUser}>
