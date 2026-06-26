@@ -27,7 +27,7 @@ export function AuthModal() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<"google" | "discord" | "apple" | null>(null);
+  const [oauthLoading, setOauthLoading] = useState<"google" | "discord" | null>(null);
   const [showPw, setShowPw] = useState(false);
   const backdropRef = useRef<HTMLDivElement>(null);
 
@@ -65,13 +65,13 @@ export function AuthModal() {
     router.refresh();
   }
 
-  async function signInWithOAuth(provider: "google" | "discord" | "apple") {
+  async function signInWithOAuth(provider: "google" | "discord") {
     if (!hasSupabaseBrowserEnv()) { continueAfterAuth(); return; }
     setOauthLoading(provider);
     const next = searchParams.get("next") ?? "/dashboard";
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signInWithOAuth({
-      provider: provider === "apple" ? "apple" : provider,
+      provider,
       options: {
         redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
       },
@@ -188,22 +188,6 @@ export function AuthModal() {
                     </svg>
                   )}
                   Google
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => signInWithOAuth("apple")}
-                  disabled={oauthLoading !== null}
-                  className="flex h-12 w-full items-center justify-center gap-3 rounded-2xl bg-white text-sm font-bold text-gray-900 shadow-sm transition hover:bg-gray-50 disabled:opacity-50"
-                >
-                  {oauthLoading === "apple" ? (
-                    <Loader2 size={16} className="animate-spin" />
-                  ) : (
-                    <svg width="16" height="19" viewBox="0 0 814 1000" fill="currentColor">
-                      <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 405.6 0 172.4 0 174.3c0-5.8 0-19.2 3.2-29.5 13-50.2 47.3-82.6 78.9-110.7C116.8 6.5 156.6 0 193 0c64.3 0 117.2 42.6 155.5 42.6 36.6 0 98.8-42.6 171.1-42.6 27.5 0 108.2 2.6 168.3 68.3zm-56.9-172.7c30.3-35.9 52.6-85.5 52.6-135.1 0-6.5-.6-13-1.9-19.2C726.2 19 655.3 59.5 617.7 105.5c-28.2 33.9-51.9 83.5-51.9 130.8 0 7.1 1.3 14.2 1.9 16.5 2.6.3 5.2.6 7.8.6 44.3 0 109.1-38.5 156.7-84.2z"/>
-                    </svg>
-                  )}
-                  Apple
                 </button>
 
                 <div className="flex items-center gap-3 py-1">

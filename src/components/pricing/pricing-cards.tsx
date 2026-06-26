@@ -115,8 +115,14 @@ export function PricingCards({
           const isFree = plan.id === "free";
           const isHighlighted = plan.highlighted;
           const basePrice = parseFloat(plan.price.replace("$", ""));
-          const yearlyMonthly = (basePrice * (1 - yearlyDiscount)).toFixed(2);
-          const yearlyTotal = (basePrice * (1 - yearlyDiscount) * 12).toFixed(2);
+          const yearlyMonthlyNum = basePrice * (1 - yearlyDiscount);
+          const yearlyMonthly = yearlyMonthlyNum.toFixed(2);
+          const yearlyTotal = (yearlyMonthlyNum * 12).toFixed(2);
+          // Combined discount vs. the "original" price for the yearly view (bigger, more attractive)
+          const originalNum = plan.originalPrice ? parseFloat(plan.originalPrice.replace("$", "")) : null;
+          const yearlyDiscountPct = originalNum
+            ? Math.round((1 - yearlyMonthlyNum / originalNum) * 100)
+            : null;
 
           return (
             <div
@@ -165,10 +171,17 @@ export function PricingCards({
                   <div className="mb-1">
                     {billing === "yearly" ? (
                       <>
+                        {plan.originalPrice && yearlyDiscountPct && (
+                          <div className="mb-1 flex items-center gap-2">
+                            <span className="text-sm text-zinc-500 line-through">{plan.originalPrice}/mo</span>
+                            <span className="rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 px-2 py-0.5 text-[10px] font-black text-white">
+                              {yearlyDiscountPct}% OFF
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-end gap-2">
                           <span className="text-4xl font-black text-white">${yearlyMonthly}</span>
                           <span className="pb-1 text-sm text-zinc-400">/mo</span>
-                          <span className="pb-1 text-sm text-zinc-500 line-through">{plan.price}/mo</span>
                         </div>
                         <p className="mt-1 text-xs text-zinc-500">Billed ${yearlyTotal}/year</p>
                       </>
