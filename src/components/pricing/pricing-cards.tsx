@@ -25,7 +25,7 @@ export function PricingCards({
   const [billing, setBilling] = useState<"monthly" | "yearly">("yearly");
   const { openCheckout } = usePaddleCheckout();
 
-  async function checkout(planId: string, paddlePriceId?: string) {
+  async function checkout(planId: string, paddlePriceIdMonthly?: string, paddlePriceIdYearly?: string) {
     setError("");
 
     // Not logged in → show auth modal
@@ -34,10 +34,12 @@ export function PricingCards({
       return;
     }
 
+    const priceId = billing === "yearly" ? paddlePriceIdYearly : paddlePriceIdMonthly;
+
     // Paddle overlay checkout
-    if (paddlePriceId && process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN) {
+    if (priceId && process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN) {
       setLoadingPlan(planId);
-      await openCheckout({ priceId: paddlePriceId, userId, userEmail });
+      await openCheckout({ priceId, userId, userEmail });
       setLoadingPlan(null);
       return;
     }
@@ -192,7 +194,7 @@ export function PricingCards({
                 <button
                   type="button"
                   disabled={loadingPlan === plan.id}
-                  onClick={() => checkout(plan.id, plan.paddlePriceId)}
+                  onClick={() => checkout(plan.id, plan.paddlePriceId, plan.paddlePriceIdYearly)}
                   className={cn(
                     "mb-6 w-full rounded-xl py-3 text-sm font-bold transition",
                     isHighlighted

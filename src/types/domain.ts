@@ -79,4 +79,5 @@ export type PricingPlan = {
   badge?: string;
   highlighted?: boolean;
   paddlePriceId?: string;
+  paddlePriceIdYearly?: string;
 };
