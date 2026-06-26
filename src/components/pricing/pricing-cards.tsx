@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { pricingPlans } from "@/lib/pricing";
 import { cn } from "@/lib/utils";
-import { usePaddleCheckout } from "@/components/payments/paddle-checkout";
+import { usePaddleCheckout, isPaddleConfigured } from "@/components/payments/paddle-checkout";
 
 export function PricingCards({
   labels,
@@ -36,15 +36,23 @@ export function PricingCards({
 
     const priceId = billing === "yearly" ? paddlePriceIdYearly : paddlePriceIdMonthly;
 
-    // Paddle overlay checkout
-    if (priceId && process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN) {
+    // Paddle overlay checkout. When Paddle is configured we ONLY use Paddle —
+    // never fall back to a server checkout that could grant free credits.
+    if (isPaddleConfigured()) {
+      if (!priceId) {
+        setError("This plan is not available for the selected billing period yet.");
+        return;
+      }
       setLoadingPlan(planId);
-      await openCheckout({ priceId, userId, userEmail });
+      const opened = await openCheckout({ priceId, userId, userEmail, onError: setError });
       setLoadingPlan(null);
+      if (!opened) {
+        setError("Payment could not be opened. Please try again or contact support.");
+      }
       return;
     }
 
-    // Fallback: server-side checkout (mock / ccbill)
+    // Fallback: server-side checkout (mock / ccbill) — only when Paddle is not configured
     setLoadingPlan(planId);
     const response = await fetch("/api/payments/checkout", {
       method: "POST",

@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { Paddle } from "@paddle/paddle-js";
+import { useEffect } from "react";
+import type { Paddle, PaddleEventData } from "@paddle/paddle-js";
 
 let globalPaddle: Paddle | null = null;
 let initPromise: Promise<Paddle | null> | null = null;
+let lastErrorHandler: ((message: string) => void) | null = null;
 
 function getPaddle(): Promise<Paddle | null> {
   if (globalPaddle) return Promise.resolve(globalPaddle);
@@ -17,6 +18,11 @@ function getPaddle(): Promise<Paddle | null> {
     initializePaddle({
       token: clientToken,
       environment: (process.env.NEXT_PUBLIC_PADDLE_ENVIRONMENT ?? "production") as "sandbox" | "production",
+      eventCallback: (event: PaddleEventData) => {
+        if (event.name === "checkout.error" && lastErrorHandler) {
+          lastErrorHandler("Checkout could not be opened. Please try again later.");
+        }
+      },
     }).then((paddle) => {
       globalPaddle = paddle ?? null;
       return globalPaddle;
@@ -24,6 +30,10 @@ function getPaddle(): Promise<Paddle | null> {
   );
 
   return initPromise;
+}
+
+export function isPaddleConfigured() {
+  return Boolean(process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN);
 }
 
 export function usePaddleCheckout() {
@@ -36,22 +46,32 @@ export function usePaddleCheckout() {
     priceId,
     userId,
     userEmail,
+    onError,
   }: {
     priceId: string;
     userId: string;
     userEmail?: string;
-  }) {
+    onError?: (message: string) => void;
+  }): Promise<boolean> {
     const paddle = await getPaddle();
     if (!paddle) {
-      console.error("Paddle not initialized");
-      return;
+      onError?.("Payment system is not available right now. Please try again later.");
+      return false;
     }
 
-    paddle.Checkout.open({
-      items: [{ priceId, quantity: 1 }],
-      customData: { user_id: userId },
-      ...(userEmail ? { customer: { email: userEmail } } : {}),
-    });
+    lastErrorHandler = onError ?? null;
+
+    try {
+      paddle.Checkout.open({
+        items: [{ priceId, quantity: 1 }],
+        customData: { user_id: userId },
+        ...(userEmail ? { customer: { email: userEmail } } : {}),
+      });
+      return true;
+    } catch {
+      onError?.("Checkout could not be opened. Please try again later.");
+      return false;
+    }
   }
 
   return { openCheckout };
